@@ -1,4 +1,3 @@
-import FacebookHeader from "@/components/FacebookHeader";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -64,7 +63,6 @@ export default function MarketplaceScreen() {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
     >
-      <FacebookHeader />
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -257,6 +255,7 @@ const styles = StyleSheet.create({
   categoryItem: {
     width: "33.33%",
     padding: 8,
+    alignItems: "center",
   },
   categoryIcon: {
     width: 48,
@@ -337,7 +336,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   actionCard: {
-    width: "33.33%",
+    width: "30%",
     padding: 12,
     borderRadius: 8,
     justifyContent: "center",

@@ -177,8 +177,6 @@ export default function WatchScreen() {
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      <FacebookHeader />
-
       <PanGestureHandler
         onGestureEvent={handleGestureEvent}
         onHandlerStateChange={handleGestureStateChange}

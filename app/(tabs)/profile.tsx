@@ -1,6 +1,6 @@
-import FacebookHeader from "@/components/FacebookHeader";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React from "react";
 import {
   SafeAreaView,
@@ -71,7 +71,6 @@ export default function ProfileScreen() {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
     >
-      <FacebookHeader />
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -313,7 +312,7 @@ export default function ProfileScreen() {
                   styles.toggleKnob,
                   {
                     backgroundColor: colors.surface,
-                    transform: [{ translateX: isDarkMode ? 20 : 0 }],
+                    transform: [{ translateX: isDarkMode ? 20 : -10 }],
                   },
                 ]}
               />
@@ -324,6 +323,7 @@ export default function ProfileScreen() {
         {/* Logout Button */}
         <TouchableOpacity
           style={[styles.logoutButton, { backgroundColor: colors.surface }]}
+          onPress={() => router.replace("/auth/register")}
         >
           <Ionicons name="log-out-outline" size={20} color={colors.error} />
           <Text style={[styles.logoutText, { color: colors.error }]}>
