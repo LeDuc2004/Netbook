@@ -1,4 +1,3 @@
-import FacebookHeader from "@/components/FacebookHeader";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -72,7 +71,6 @@ export default function GroupsScreen() {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
     >
-      <FacebookHeader />
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -187,7 +185,7 @@ export default function GroupsScreen() {
                 >
                   {group.members.toLocaleString()} thành viên
                 </Text>
-                <Text style={[styles.groupCategory, { color: colors.primary }]}>
+                <Text style={[styles.groupActivity, { color: colors.primary }]}>
                   {group.category}
                 </Text>
               </View>
@@ -278,6 +276,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 24,
     fontWeight: "bold",
+    marginBottom: 12,
   },
   seeAllText: {
     fontSize: 14,
@@ -321,6 +320,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#65676b",
   },
+  groupCategory: {
+    fontSize: 12,
+    fontWeight: "600",
+    marginTop: 2,
+  },
   joinButton: {
     backgroundColor: "#1877f2",
     paddingHorizontal: 16,
@@ -335,8 +339,11 @@ const styles = StyleSheet.create({
   quickActions: {
     flexDirection: "row",
     justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: 12,
   },
   actionCard: {
+    width: "48%",
     flexDirection: "row",
     alignItems: "center",
     padding: 16,

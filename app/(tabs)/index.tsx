@@ -1,5 +1,4 @@
 import CreatePost from "@/components/CreatePost";
-import FacebookHeader from "@/components/FacebookHeader";
 import PostItem from "@/components/PostItem";
 import StoriesSection from "@/components/StoriesSection";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -52,7 +51,6 @@ export default function HomeScreen() {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
     >
-      <FacebookHeader />
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
