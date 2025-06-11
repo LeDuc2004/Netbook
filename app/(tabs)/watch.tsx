@@ -1,15 +1,20 @@
 import CommentModal from "@/components/CommentModal";
 import VideoPlayer from "@/components/VideoPlayer";
 import { watchData } from "@/constants/Watch-data";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import React, { useRef, useState } from "react";
-import { Animated, Dimensions, StyleSheet } from "react-native";
 import {
-  GestureHandlerRootView,
-  PanGestureHandler,
-  State,
-} from "react-native-gesture-handler";
+  Dimensions,
+  FlatList,
+  StyleSheet,
+  View,
+  ViewToken,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
+
+const HEADER_HEIGHT = 60;
 
 interface VideoItem {
   id: number;
@@ -26,56 +31,15 @@ interface VideoItem {
 }
 
 export default function WatchScreen() {
+  const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [videos, setVideos] = useState<VideoItem[]>(watchData);
-
-  const translateY = useRef(new Animated.Value(0)).current;
-  const [isPlaying, setIsPlaying] = useState(true);
   const [showCommentModal, setShowCommentModal] = useState(false);
+  const flatListRef = useRef<FlatList>(null);
 
-  const handleGestureEvent = Animated.event(
-    [{ nativeEvent: { translationY: translateY } }],
-    { useNativeDriver: true }
-  );
-
-  const handleGestureStateChange = (event: any) => {
-    if (event.nativeEvent.state === State.END) {
-      const { translationY } = event.nativeEvent;
-
-      if (
-        translationY < -screenHeight / 3 &&
-        currentVideoIndex < videos.length - 1
-      ) {
-        // Swipe up - Next video
-        Animated.timing(translateY, {
-          toValue: -screenHeight,
-          duration: 300,
-          useNativeDriver: true,
-        }).start(() => {
-          setCurrentVideoIndex(currentVideoIndex + 1);
-          setIsPlaying(true); // Auto play next video
-          translateY.setValue(0);
-        });
-      } else if (translationY > screenHeight / 3 && currentVideoIndex > 0) {
-        // Swipe down - Previous video
-        Animated.timing(translateY, {
-          toValue: screenHeight,
-          duration: 300,
-          useNativeDriver: true,
-        }).start(() => {
-          setCurrentVideoIndex(currentVideoIndex - 1);
-          setIsPlaying(true); // Auto play previous video
-          translateY.setValue(0);
-        });
-      } else {
-        // Return to original position
-        Animated.spring(translateY, {
-          toValue: 0,
-          useNativeDriver: true,
-        }).start();
-      }
-    }
-  };
+  const availableHeight =
+    screenHeight - insets.top - HEADER_HEIGHT - tabBarHeight;
 
   const toggleLike = (videoId: number) => {
     setVideos(
@@ -101,41 +65,81 @@ export default function WatchScreen() {
     );
   };
 
-  const currentVideo = videos[currentVideoIndex];
+  const renderVideoItem = ({
+    item,
+    index,
+  }: {
+    item: VideoItem;
+    index: number;
+  }) => {
+    // Chỉ video hiện tại mới được đánh dấu là visible
+    const isVideoVisible = index === currentVideoIndex;
+    return (
+      <View style={[styles.videoContainer, { height: availableHeight }]}>
+        <VideoPlayer
+          videoUrl={item.videoUrl}
+          avatar={item.avatar}
+          username={item.username}
+          description={item.description}
+          isFollowing={item.isFollowing}
+          isLiked={item.isLiked}
+          likes={item.likes}
+          comments={item.comments}
+          shares={item.shares}
+          onToggleFollow={toggleFollow}
+          onToggleLike={toggleLike}
+          onShowComments={() => setShowCommentModal(true)}
+          id={item.id}
+          isVisible={isVideoVisible}
+        />
+      </View>
+    );
+  };
+
+  const onViewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      if (viewableItems.length > 0) {
+        const visibleIndex = viewableItems[0].index;
+        if (visibleIndex !== null && visibleIndex !== currentVideoIndex) {
+          setCurrentVideoIndex(visibleIndex);
+        }
+      }
+    }
+  ).current;
+
+  const viewabilityConfig = useRef({
+    itemVisiblePercentThreshold: 50,
+  }).current;
+
+  const getItemLayout = (data: any, index: number) => ({
+    length: availableHeight,
+    offset: availableHeight * index,
+    index,
+  });
 
   return (
     <>
-      <GestureHandlerRootView style={styles.container}>
-        <PanGestureHandler
-          onGestureEvent={handleGestureEvent}
-          onHandlerStateChange={handleGestureStateChange}
-        >
-          <Animated.View
-            style={[
-              styles.videoContainer,
-              {
-                transform: [{ translateY }],
-              },
-            ]}
-          >
-            <VideoPlayer
-              videoUrl={currentVideo.videoUrl}
-              avatar={currentVideo.avatar}
-              username={currentVideo.username}
-              description={currentVideo.description}
-              isFollowing={currentVideo.isFollowing}
-              isLiked={currentVideo.isLiked}
-              likes={currentVideo.likes}
-              comments={currentVideo.comments}
-              shares={currentVideo.shares}
-              onToggleFollow={toggleFollow}
-              onToggleLike={toggleLike}
-              onShowComments={() => setShowCommentModal(true)}
-              id={currentVideo.id}
-            />
-          </Animated.View>
-        </PanGestureHandler>
-      </GestureHandlerRootView>
+      <View style={styles.container}>
+        <FlatList
+          ref={flatListRef}
+          data={videos}
+          renderItem={renderVideoItem}
+          keyExtractor={(item) => item.id.toString()}
+          pagingEnabled
+          showsVerticalScrollIndicator={false}
+          snapToInterval={availableHeight}
+          snapToAlignment="start"
+          decelerationRate="fast"
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
+          getItemLayout={getItemLayout}
+          initialScrollIndex={currentVideoIndex}
+          maxToRenderPerBatch={3}
+          windowSize={5}
+          removeClippedSubviews={true}
+          style={styles.flatList}
+        />
+      </View>
       <CommentModal
         visible={showCommentModal}
         onClose={() => setShowCommentModal(false)}
@@ -147,10 +151,13 @@ export default function WatchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "red",
+    position: "relative",
+  },
+  flatList: {
+    flex: 1,
   },
   videoContainer: {
-    flex: 1,
-    position: "relative",
+    width: screenWidth,
   },
 });

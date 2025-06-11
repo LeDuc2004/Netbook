@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
 import { useEvent, useEventListener } from "expo";
 import { useVideoPlayer, VideoView } from "expo-video";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -26,6 +26,7 @@ interface VideoPlayerProps {
   onToggleLike: (id: number) => void;
   onShowComments: () => void;
   id: number;
+  isVisible?: boolean;
 }
 
 const VideoPlayer: React.FC<VideoPlayerProps> = ({
@@ -42,6 +43,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   onToggleLike,
   onShowComments,
   id,
+  isVisible = true,
 }) => {
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -58,6 +60,18 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const { isPlaying } = useEvent(player, "playingChange", {
     isPlaying: player.playing,
   });
+
+  useEffect(() => {
+    if (player) {
+      if (isVisible) {
+        console.log("play");
+        player.play();
+      } else {
+        console.log("pause");
+        player.pause();
+      }
+    }
+  }, [isVisible, player]);
 
   useEventListener(player, "timeUpdate", (payload) => {
     if (!isDragging) {
@@ -114,7 +128,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         player={player}
         allowsFullscreen
         allowsPictureInPicture
-        contentFit="cover"
+        contentFit="contain"
         nativeControls={false}
       />
 
