@@ -114,7 +114,6 @@ export default function PostItem({ post }: PostItemProps) {
       <CommentModal
         visible={showCommentModal}
         onClose={() => setShowCommentModal(false)}
-        postId={post.id}
       />
     </View>
   );

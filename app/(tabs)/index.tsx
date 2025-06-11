@@ -2,9 +2,9 @@ import CreatePost from "@/components/CreatePost";
 import PostItem from "@/components/PostItem";
 import StoriesSection from "@/components/StoriesSection";
 import { useTheme } from "@/contexts/ThemeContext";
+import Slider from "@react-native-community/slider";
 import React from "react";
 import { SafeAreaView, ScrollView, StyleSheet } from "react-native";
-
 export default function HomeScreen() {
   const { colors } = useTheme();
 
@@ -55,6 +55,7 @@ export default function HomeScreen() {
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
+        <Slider minimumValue={0} maximumValue={100} value={50} />
         <CreatePost />
         <StoriesSection />
         {posts.map((post) => (

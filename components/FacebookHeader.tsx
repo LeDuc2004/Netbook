@@ -8,11 +8,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function FacebookHeader() {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
@@ -27,7 +25,6 @@ export default function FacebookHeader() {
           {
             backgroundColor: colors.surface,
             borderBottomColor: colors.border,
-            paddingTop: insets.top > 0 ? insets.top : 10, // Use safe area top inset
           },
         ]}
       >
@@ -64,7 +61,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingBottom: 10,
+    paddingVertical: 10,
     backgroundColor: "#fff",
     borderBottomWidth: 1,
     borderBottomColor: "#e0e0e0",
