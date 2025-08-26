@@ -1,19 +1,21 @@
 import CreatePost from "@/components/CreatePost";
 import PostItem from "@/components/PostItem";
 import StoriesSection from "@/components/StoriesSection";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import Slider from "@react-native-community/slider";
 import React from "react";
 import { SafeAreaView, ScrollView, StyleSheet } from "react-native";
+
 export default function HomeScreen() {
   const { colors } = useTheme();
+  const { t } = useLanguage();
 
   const posts = [
     {
       id: 1,
       username: "Nguyễn Văn A",
       avatar: "A",
-      timeAgo: "2 giờ trước",
+      timeAgo: "2 " + t("hoursAgo"),
       content:
         "Hôm nay là một ngày tuyệt vời! Vừa hoàn thành xong dự án React Native mới. Cảm thấy thật sự hài lòng với kết quả. 🎉 #coding #reactnative #success",
       likes: 125,
@@ -25,7 +27,7 @@ export default function HomeScreen() {
       id: 2,
       username: "Trần Thị B",
       avatar: "B",
-      timeAgo: "5 giờ trước",
+      timeAgo: "5 " + t("hoursAgo"),
       content:
         "Chia sẻ công thức nấu món phở bò truyền thống của gia đình. Món ăn này đã được truyền từ đời này sang đời khác. Hy vọng mọi người sẽ thích! 🍜 #pho #vietnamese #cooking",
       likes: 89,
@@ -37,7 +39,7 @@ export default function HomeScreen() {
       id: 3,
       username: "Lê Văn C",
       avatar: "C",
-      timeAgo: "1 ngày trước",
+      timeAgo: "1 " + t("hoursAgo"),
       content:
         "Du lịch Đà Nẵng - Những địa điểm không thể bỏ qua! Bãi biển Mỹ Khê, Bán đảo Sơn Trà, và đặc biệt là cầu Rồng về đêm. Thật sự là một trải nghiệm tuyệt vời! ✈️ #danang #travel #vietnam",
       likes: 234,
@@ -55,7 +57,6 @@ export default function HomeScreen() {
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
-        <Slider minimumValue={0} maximumValue={100} value={50} />
         <CreatePost />
         <StoriesSection />
         {posts.map((post) => (

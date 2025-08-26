@@ -1,11 +1,14 @@
 import CommentModal from "@/components/CommentModal";
 import VideoPlayer from "@/components/VideoPlayer";
 import { watchData } from "@/constants/Watch-data";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import React, { useRef, useState } from "react";
 import {
   Dimensions,
   FlatList,
+  SafeAreaView,
   StyleSheet,
   View,
   ViewToken,
@@ -31,6 +34,8 @@ interface VideoItem {
 }
 
 export default function WatchScreen() {
+  const { colors } = useTheme();
+  const { t } = useLanguage();
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
@@ -118,41 +123,72 @@ export default function WatchScreen() {
   });
 
   return (
-    <>
-      <View style={styles.container}>
-        <FlatList
-          ref={flatListRef}
-          data={videos}
-          renderItem={renderVideoItem}
-          keyExtractor={(item) => item.id.toString()}
-          pagingEnabled
-          showsVerticalScrollIndicator={false}
-          snapToInterval={availableHeight}
-          snapToAlignment="start"
-          decelerationRate="fast"
-          onViewableItemsChanged={onViewableItemsChanged}
-          viewabilityConfig={viewabilityConfig}
-          getItemLayout={getItemLayout}
-          initialScrollIndex={currentVideoIndex}
-          maxToRenderPerBatch={3}
-          windowSize={5}
-          removeClippedSubviews={true}
-          style={styles.flatList}
-        />
-      </View>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
+      <FlatList
+        ref={flatListRef}
+        data={videos}
+        renderItem={renderVideoItem}
+        keyExtractor={(item) => item.id.toString()}
+        pagingEnabled
+        showsVerticalScrollIndicator={false}
+        snapToInterval={availableHeight}
+        snapToAlignment="start"
+        decelerationRate="fast"
+        onViewableItemsChanged={onViewableItemsChanged}
+        viewabilityConfig={viewabilityConfig}
+        getItemLayout={getItemLayout}
+        initialScrollIndex={currentVideoIndex}
+        maxToRenderPerBatch={2}
+        windowSize={3}
+        removeClippedSubviews={true}
+        style={styles.flatList}
+      />
       <CommentModal
         visible={showCommentModal}
         onClose={() => setShowCommentModal(false)}
       />
-    </>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "red",
-    position: "relative",
+  },
+  scrollView: {
+    flex: 1,
+  },
+  header: {
+    padding: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  categoriesContainer: {
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+  categoryItem: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 8,
+  },
+  categoryText: {
+    fontSize: 14,
+  },
+  content: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+  placeholderText: {
+    fontSize: 16,
+    textAlign: "center",
   },
   flatList: {
     flex: 1,

@@ -48,7 +48,6 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [seekTime, setSeekTime] = useState(0);
   const [loading, setLoading] = useState(false);
 
   const player = useVideoPlayer(videoUrl, (player) => {
@@ -59,6 +58,25 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   const { isPlaying } = useEvent(player, "playingChange", {
     isPlaying: player.playing,
+  });
+
+  useEventListener(player, "timeUpdate", (payload) => {
+    if (!isDragging) {
+      setCurrentTime(payload.currentTime);
+    }
+  });
+
+  useEventListener(player, "sourceLoad", (payload) => {
+    setDuration(payload.duration);
+    setLoading(false);
+  });
+
+  useEventListener(player, "statusChange", ({ status }) => {
+    if (status === "loading") setLoading(true);
+    if (status === "readyToPlay")
+      setTimeout(() => {
+        setLoading(false);
+      }, 0);
   });
 
   useEffect(() => {
@@ -73,31 +91,12 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
   }, [isVisible, player]);
 
-  useEventListener(player, "timeUpdate", (payload) => {
-    if (!isDragging) {
-      setCurrentTime(payload.currentTime);
-    }
-  });
-
-  useEventListener(player, "sourceLoad", (payload) => {
-    setDuration(payload.duration);
-  });
-
-  useEventListener(player, "sourceLoad", () => setLoading(false));
-  useEventListener(player, "statusChange", ({ status }) => {
-    if (status === "loading") setLoading(true);
-    if (status === "readyToPlay")
-      setTimeout(() => {
-        setLoading(false);
-      }, 0);
-  });
-
   const handleSlidingStart = () => {
     setIsDragging(true);
   };
 
   const handleSlidingChange = (value: number) => {
-    setSeekTime(value);
+    setCurrentTime(value);
   };
 
   const handleSlidingComplete = (value: number) => {
@@ -134,25 +133,25 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
       {/* Progress Bar */}
       <View style={styles.progressContainer}>
+        {isDragging && (
+          <View style={styles.timeContainer}>
+            <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
+            <Text style={styles.timeText}>{formatTime(duration)}</Text>
+          </View>
+        )}
         <Slider
           style={styles.progressBar}
           minimumValue={0}
           maximumValue={duration}
-          value={isDragging ? seekTime : currentTime}
+          value={currentTime}
           onSlidingStart={handleSlidingStart}
           onValueChange={handleSlidingChange}
           onSlidingComplete={handleSlidingComplete}
           minimumTrackTintColor="#1877f2"
           maximumTrackTintColor="rgba(255, 255, 255, 0.3)"
-          thumbTintColor="#1877f2"
+          thumbTintColor={isDragging ? "#1877f2" : "transparent"}
           enabled={true}
         />
-        <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>
-            {formatTime(isDragging ? seekTime : currentTime)}
-          </Text>
-          <Text style={styles.timeText}>{formatTime(duration)}</Text>
-        </View>
       </View>
 
       {/* Play/Pause Overlay */}
@@ -178,38 +177,44 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
       </TouchableOpacity>
 
       {/* Video Info Overlay */}
-      <View style={styles.videoInfo}>
-        <View style={styles.userInfo}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{avatar}</Text>
-          </View>
-          <View style={styles.userDetails}>
-            <Text style={styles.username}>@{username}</Text>
-            <TouchableOpacity
-              style={[
-                styles.followButton,
-                isFollowing && styles.followingButton,
-              ]}
-              onPress={() => onToggleFollow(parseInt(username))}
-            >
-              <Text
-                style={[styles.followText, isFollowing && styles.followingText]}
+      {!isDragging && (
+        <View style={styles.videoInfo}>
+          <View style={styles.userInfo}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>{avatar}</Text>
+            </View>
+            <View style={styles.userDetails}>
+              <Text style={styles.username}>@{username}</Text>
+              <TouchableOpacity
+                style={[
+                  styles.followButton,
+                  isFollowing && styles.followingButton,
+                ]}
+                onPress={() => onToggleFollow(parseInt(username))}
               >
-                {isFollowing ? "Đang theo dõi" : "Theo dõi"}
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  style={[
+                    styles.followText,
+                    isFollowing && styles.followingText,
+                  ]}
+                >
+                  {isFollowing ? "Đang theo dõi" : "Theo dõi"}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
 
-        <Text numberOfLines={2} style={styles.description}>
-          {description}
-        </Text>
-      </View>
+          <Text numberOfLines={2} style={styles.description}>
+            {description}
+          </Text>
+        </View>
+      )}
 
       {/* Action Buttons */}
-      <View style={styles.actionButtons}>
-        <TouchableWithoutFeedback
-          style={styles.actionButton}
+      {!isDragging && (
+        <View style={styles.actionButtons}>
+          <TouchableWithoutFeedback
+            style={styles.actionButton}
           onPress={() => onToggleLike(id)}
         >
           <View style={styles.actionIconContainer}>
@@ -243,21 +248,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           <View style={styles.actionIconContainer}>
             <Ionicons name="ellipsis-vertical" size={28} color="#fff" />
           </View>
-        </TouchableWithoutFeedback>
-      </View>
+          </TouchableWithoutFeedback>
+        </View>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#000",
-  },
-  videoContainer: {
-    flex: 1,
-    position: "relative",
-  },
   videoBackground: {
     flex: 1,
     backgroundColor: "black",
@@ -291,7 +289,7 @@ const styles = StyleSheet.create({
   },
   videoInfo: {
     position: "absolute",
-    bottom: 40,
+    bottom: 20,
     left: 16,
     right: 80,
   },
@@ -382,7 +380,6 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     width: "100%",
-    height: 4,
   },
   video: {
     width: "100%",

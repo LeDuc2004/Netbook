@@ -29,7 +29,7 @@ export default function FacebookHeader() {
         ]}
       >
         <View style={styles.leftSection}>
-          <Text style={[styles.logo, { color: colors.primary }]}>facebook</Text>
+          <Text style={[styles.logo, { color: colors.primary }]}>fakebook</Text>
         </View>
 
         <View style={styles.rightSection}>

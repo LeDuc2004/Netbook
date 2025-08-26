@@ -7,6 +7,7 @@ import { Platform, View } from "react-native";
 import FacebookHeader from "@/components/FacebookHeader";
 import { HapticTab } from "@/components/HapticTab";
 import TabBarBackground from "@/components/ui/TabBarBackground";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import {
   SafeAreaProvider,
@@ -17,6 +18,7 @@ export default function TabLayout() {
   const { colors } = useTheme();
   const colorScheme = useColorScheme();
   const insets = useSafeAreaInsets();
+  const { t } = useLanguage();
 
   return (
     <SafeAreaProvider>
@@ -54,7 +56,7 @@ export default function TabLayout() {
           <Tabs.Screen
             name="index"
             options={{
-              title: "Trang chủ",
+              title: t("home"),
               tabBarIcon: ({ color, focused }) => (
                 <Ionicons
                   name={focused ? "home" : "home-outline"}
@@ -67,7 +69,7 @@ export default function TabLayout() {
           <Tabs.Screen
             name="watch"
             options={{
-              title: "Watch",
+              title: t("watch"),
               tabBarIcon: ({ color, focused }) => (
                 <Ionicons
                   name={focused ? "play-circle" : "play-circle-outline"}
@@ -80,7 +82,7 @@ export default function TabLayout() {
           <Tabs.Screen
             name="marketplace"
             options={{
-              title: "Marketplace",
+              title: t("marketplace"),
               tabBarIcon: ({ color, focused }) => (
                 <Ionicons
                   name={focused ? "storefront" : "storefront-outline"}
@@ -93,7 +95,7 @@ export default function TabLayout() {
           <Tabs.Screen
             name="groups"
             options={{
-              title: "Nhóm",
+              title: t("groups"),
               tabBarIcon: ({ color, focused }) => (
                 <Ionicons
                   name={focused ? "people" : "people-outline"}
@@ -104,12 +106,25 @@ export default function TabLayout() {
             }}
           />
           <Tabs.Screen
-            name="profile"
+            name="notifications"
             options={{
-              title: "Cá nhân",
+              title: t("notifications"),
               tabBarIcon: ({ color, focused }) => (
                 <Ionicons
-                  name={focused ? "person" : "person-outline"}
+                  name={focused ? "notifications" : "notifications-outline"}
+                  size={24}
+                  color={color}
+                />
+              ),
+            }}
+          />
+          <Tabs.Screen
+            name="menu"
+            options={{
+              title: t("menu"),
+              tabBarIcon: ({ color, focused }) => (
+                <Ionicons
+                  name={focused ? "menu" : "menu-outline"}
                   size={24}
                   color={color}
                 />
